@@ -177,7 +177,7 @@ public final class StandardAssertConstraintViolation implements AssertConstraint
     return this;
   }
 
-  /** {@inheritDoc **/
+  /** {@inheritDoc} */
   @Override
   public AssertConstraintViolation fieldHasNoneOfErrors(
       String fieldName, String... unexpectedViolations) {
@@ -193,6 +193,41 @@ public final class StandardAssertConstraintViolation implements AssertConstraint
             "Field %s not expected to have any of violations %s. Violations found for the field: %s",
             fieldName, unexpected, actual)
         .doesNotContainAnyElementsOf(unexpected);
+
+    return this;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public AssertConstraintViolation fieldHasNoneOfErrorsContaining(
+      String fieldName, String... unexpectedViolations) {
+    this.validateFieldNameArgumentProvided(fieldName)
+        .validateViolationsArgument(unexpectedViolations);
+
+    List<String> actual =
+        this.violationsPerField.getOrDefault(fieldName, new HashSet<>()).stream().sorted().toList();
+    List<String> unexpected = Stream.of(unexpectedViolations).sorted().toList();
+
+    boolean allFragmentsMatching =
+        unexpected.stream()
+            .anyMatch(
+                (String expectedViolationFragment) -> {
+                  Predicate<String> containsSubString =
+                      (String actualViolation) ->
+                          actualViolation.contains(expectedViolationFragment);
+
+                  Pattern regexPattern = Pattern.compile(expectedViolationFragment);
+                  Predicate<String> matchesRegexPattern =
+                      (String actualViolation) -> regexPattern.matcher(actualViolation).find();
+
+                  return actual.stream().anyMatch(containsSubString.or(matchesRegexPattern));
+                });
+
+    assertThat(allFragmentsMatching)
+        .withFailMessage(
+            "Field %s not expected to have violations containing %s. Violations found for the field: %s",
+            fieldName, unexpected, actual)
+        .isFalse();
 
     return this;
   }
