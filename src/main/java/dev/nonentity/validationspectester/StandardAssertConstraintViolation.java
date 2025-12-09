@@ -231,4 +231,17 @@ public final class StandardAssertConstraintViolation implements AssertConstraint
 
     return this;
   }
+
+  /** {@inheritDoc} */
+  @Override
+  public AssertConstraintViolation fieldHasNoError(String fieldName) {
+    this.validateFieldNameArgumentProvided(fieldName);
+    assertThat(this.violationsPerField)
+        .withFailMessage(
+            "Field %s not expected to have violations. Violations found: %s",
+            fieldName, this.violationsPerField.get(fieldName))
+        .doesNotContainKey(fieldName);
+
+    return this;
+  }
 }
