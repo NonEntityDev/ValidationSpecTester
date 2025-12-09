@@ -29,9 +29,12 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -98,7 +101,14 @@ public final class StandardAssertConstraintViolation implements AssertConstraint
     }
   }
 
-  private StandardAssertConstraintViolation validateFieldNameArgument(String fieldName) {
+  private StandardAssertConstraintViolation validateFieldNameArgumentProvided(String fieldName) {
+    if ((fieldName == null) || (fieldName.isBlank())) {
+      throw new IllegalArgumentException("No field name provided to assert.");
+    }
+    return this;
+  }
+
+  private StandardAssertConstraintViolation validateFieldNameArgumentIsPresent(String fieldName) {
     if (!this.violationsPerField.containsKey(fieldName)) {
       throw new IllegalArgumentException(
           String.format("Field %s not found or has no violations.", fieldName));
@@ -106,10 +116,10 @@ public final class StandardAssertConstraintViolation implements AssertConstraint
     return this;
   }
 
-  private StandardAssertConstraintViolation validateExpectedViolationsArgument(
+  private StandardAssertConstraintViolation validateViolationsArgument(
       String... expectedViolations) {
     if ((expectedViolations == null) || (expectedViolations.length == 0)) {
-      throw new IllegalArgumentException("No expected violation provided to assert.");
+      throw new IllegalArgumentException("No violation provided to assert.");
     }
     return this;
   }
@@ -117,8 +127,9 @@ public final class StandardAssertConstraintViolation implements AssertConstraint
   /** {@inheritDoc} */
   @Override
   public AssertConstraintViolation fieldHasError(String fieldName, String... expectedViolations) {
-    this.validateFieldNameArgument(fieldName)
-        .validateExpectedViolationsArgument(expectedViolations);
+    this.validateFieldNameArgumentProvided(fieldName)
+        .validateFieldNameArgumentIsPresent(fieldName)
+        .validateViolationsArgument(expectedViolations);
 
     List<String> actual = this.violationsPerField.get(fieldName).stream().sorted().toList();
     List<String> expected = Stream.of(expectedViolations).sorted().toList();
@@ -134,21 +145,28 @@ public final class StandardAssertConstraintViolation implements AssertConstraint
   /** {@inheritDoc} */
   @Override
   public AssertConstraintViolation fieldHasErrorContaining(
-      String fieldName, String... expectedViolationsParts) {
-    this.validateFieldNameArgument(fieldName)
-        .validateExpectedViolationsArgument(expectedViolationsParts);
+      String fieldName, String... expectedViolationsFragments) {
+    this.validateFieldNameArgumentProvided(fieldName)
+        .validateFieldNameArgumentIsPresent(fieldName)
+        .validateViolationsArgument(expectedViolationsFragments);
 
     List<String> actual = this.violationsPerField.get(fieldName).stream().sorted().toList();
-    List<String> expected = Stream.of(expectedViolationsParts).sorted().toList();
+    List<String> expected = Stream.of(expectedViolationsFragments).sorted().toList();
 
     boolean allFragmentsMatching =
         expected.stream()
             .allMatch(
-                (String expectedViolationFragment) ->
-                    actual.stream()
-                        .anyMatch(
-                            (String actualViolation) ->
-                                actualViolation.contains(expectedViolationFragment)));
+                (String expectedViolationFragment) -> {
+                  Predicate<String> containsSubString =
+                      (String actualViolation) ->
+                          actualViolation.contains(expectedViolationFragment);
+
+                  Pattern regexPattern = Pattern.compile(expectedViolationFragment);
+                  Predicate<String> matchesRegexPattern =
+                      (String actualViolation) -> regexPattern.matcher(actualViolation).find();
+
+                  return actual.stream().anyMatch(containsSubString.or(matchesRegexPattern));
+                });
 
     assertThat(allFragmentsMatching)
         .withFailMessage(
@@ -162,7 +180,20 @@ public final class StandardAssertConstraintViolation implements AssertConstraint
   /** {@inheritDoc **/
   @Override
   public AssertConstraintViolation fieldHasNoneOfErrors(
-      String fieldName, String... expectedViolations) {
+      String fieldName, String... unexpectedViolations) {
+    this.validateFieldNameArgumentProvided(fieldName)
+        .validateViolationsArgument(unexpectedViolations);
+
+    List<String> actual =
+        this.violationsPerField.getOrDefault(fieldName, new HashSet<>()).stream().sorted().toList();
+    List<String> unexpected = Stream.of(unexpectedViolations).sorted().toList();
+
+    assertThat(actual)
+        .withFailMessage(
+            "Field %s not expected to have any of violations %s. Violations found for the field: %s",
+            fieldName, unexpected, actual)
+        .doesNotContainAnyElementsOf(unexpected);
+
     return this;
   }
 }

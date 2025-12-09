@@ -81,6 +81,12 @@
             <version>${dependency.junit}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${dependency.junit}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
