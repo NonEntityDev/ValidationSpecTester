@@ -46,8 +46,8 @@ public interface AssertConstraintViolation {
   /**
    * Assert that, after validating the bean instance, optionally using validation groups, the field
    * has violations containing messages containing the expected fragments. This assertion will check
-   * for violation messages either containing the received fragments or matching a regex pattern
-   * defined by the fragment.
+   * for violation messages fully matching the received fragments, containing the received fragments
+   * as substring or matching a regex pattern defined by the fragment.
    *
    * <p>Example:
    *
@@ -78,4 +78,30 @@ public interface AssertConstraintViolation {
    * @return Same object instance, providing a fluid api.
    */
   AssertConstraintViolation fieldHasNoneOfErrors(String fieldName, String... unexpectedViolations);
+
+  /**
+   * Assert that, after validating the bean, optionally using validation groups, the field has none
+   * of the received violations. This assertion will check for violation messages fully matching the
+   * received fragments, containing the received fragments as substring or matching a regex pattern
+   * defined by the fragment.
+   *
+   * <p>Example:
+   *
+   * <pre>{@code
+   * // Matching substring.
+   * givenInstance(new Contact())
+   *  .fieldHasNoneOfErrorsContaining("not be null"); // Will match "must not be null" string.
+   *
+   * // Matching regex pattern.
+   * givenInstance(new Contact())
+   *   .fieldHasNoneOfErrorsContaining("^.* not be null$"); // Will also match "must not be null" string.
+   *
+   * }</pre>
+   *
+   * @param fieldName Name of the field to have violations to be checked.
+   * @param unexpectedViolations One or more violation messages not expected for the field.
+   * @return Same object instance, providing a fluid api.
+   */
+  AssertConstraintViolation fieldHasNoneOfErrorsContaining(
+      String fieldName, String... unexpectedViolations);
 }
