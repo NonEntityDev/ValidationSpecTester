@@ -37,7 +37,7 @@ public interface AssertConstraintViolation {
    * Asserts that, after validating the bean instance, optionally using the validation groups, the
    * field has all the expected violations. This assertion will check for exactly matches.
    *
-   * @param fieldName Name of the field to have violations to be checked.
+   * @param fieldName Name of the field to have violations being checked.
    * @param expectedViolations One or more violation messages expected for the field.
    * @return Same object instance, providing a fluid api.
    */
@@ -61,7 +61,7 @@ public interface AssertConstraintViolation {
    *   .fieldHasErrorContaining("^.* not be null$"); // Will also match "must not be null" string.
    * }</pre>
    *
-   * @param fieldName Name of the field to have violations to be checked.
+   * @param fieldName Name of the field to have violations being checked.
    * @param expectedViolationsFragments One or more violation message fragments expected for the
    *     field.
    * @return Same object instance, providing a fluid api.
@@ -73,7 +73,7 @@ public interface AssertConstraintViolation {
    * Assert that, after validating the bean, optionally using validation groups, the field has none
    * of the received violations. The assertion will check for exactly matches.
    *
-   * @param fieldName Name of the field to have violations to be checked.
+   * @param fieldName Name of the field to have violations being checked.
    * @param unexpectedViolations One or more violation messages not expected for the field.
    * @return Same object instance, providing a fluid api.
    */
@@ -98,10 +98,18 @@ public interface AssertConstraintViolation {
    *
    * }</pre>
    *
-   * @param fieldName Name of the field to have violations to be checked.
+   * @param fieldName Name of the field to have violations being checked.
    * @param unexpectedViolations One or more violation messages not expected for the field.
    * @return Same object instance, providing a fluid api.
    */
   AssertConstraintViolation fieldHasNoneOfErrorsContaining(
       String fieldName, String... unexpectedViolations);
+
+  /**
+   * Assert that the field has no violations reported.
+   *
+   * @param fieldName Name of the field to have violations being checked.
+   * @return Same object instance, providing a fluid api.
+   */
+  AssertConstraintViolation fieldHasNoError(String fieldName);
 }
