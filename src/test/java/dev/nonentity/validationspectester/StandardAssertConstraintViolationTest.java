@@ -30,9 +30,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import dev.nonentity.validationspectester.fixtures.Contact;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class StandardAssertConstraintViolationTest {
 
@@ -59,29 +63,48 @@ class StandardAssertConstraintViolationTest {
   @DisplayName("Given I check that a bean instance field has expected violations")
   class FieldHasErrorTest {
 
-    @Test
-    @DisplayName("When the field is not found in the list of constraint violations")
-    void fieldNotFound() {
-      assertThatThrownBy(
-              () -> givenInstance(new Contact()).fieldHasError("address", "must not be null"))
-          .isInstanceOf(IllegalArgumentException.class)
-          .hasMessage("Field address not found or has no violations.");
+    static Stream<Arguments> argumentValidationScenarios() {
+      return Stream.of(
+          // -- Field name is null
+          Arguments.of(
+              "When field name is null",
+              null,
+              new String[] {"must not be null."},
+              "No field name provided to assert."),
+          // -- Field name is blank
+          Arguments.of(
+              "When field name is blank",
+              "",
+              new String[] {"must not be null."},
+              "No field name provided to assert."),
+          // -- Field name not found
+          Arguments.of(
+              "When field name not found",
+              "address",
+              new String[] {"must not be null."},
+              "Field address not found or has no violations."),
+          // -- Expected violations is null
+          Arguments.of(
+              "When expected violations is null",
+              "firstName",
+              null,
+              "No violation provided to assert."),
+          // -- Expected violations is empty
+          Arguments.of(
+              "When expected violations is empty",
+              "firstName",
+              new String[] {},
+              "No violation provided to assert."));
     }
 
-    @Test
-    @DisplayName("When no expected violation to assert is provided")
-    void expectedViolationsNotProvided() {
-      assertThatThrownBy(() -> givenInstance(new Contact()).fieldHasError("firstName"))
+    @ParameterizedTest
+    @MethodSource("argumentValidationScenarios")
+    void assertArgumentValidation(
+        String scenario, String fieldName, String[] violations, String expectedMessage) {
+      assertThatThrownBy(() -> givenInstance(new Contact()).fieldHasError(fieldName, violations))
+          .withFailMessage(scenario)
           .isInstanceOf(IllegalArgumentException.class)
-          .hasMessage("No expected violation provided to assert.");
-    }
-
-    @Test
-    @DisplayName("When expected violation to assert is provided as null")
-    void expectedViolationsProvidedAsNull() {
-      assertThatThrownBy(() -> givenInstance(new Contact()).fieldHasError("firstName", null))
-          .isInstanceOf(IllegalArgumentException.class)
-          .hasMessage("No expected violation provided to assert.");
+          .hasMessage(expectedMessage);
     }
 
     @Test
@@ -151,30 +174,49 @@ class StandardAssertConstraintViolationTest {
       "Given I check that a bean instance field has violations with the expected message fragments")
   class FieldHasErrorContainingTest {
 
-    @Test
-    @DisplayName("When the field is not found in the list of constraint violations")
-    void fieldNotFound() {
-      assertThatThrownBy(
-              () -> givenInstance(new Contact()).fieldHasErrorContaining("address", "not be null"))
-          .isInstanceOf(IllegalArgumentException.class)
-          .hasMessage("Field address not found or has no violations.");
+    static Stream<Arguments> argumentValidationScenarios() {
+      return Stream.of(
+          // -- Field name is null
+          Arguments.of(
+              "When field name is null",
+              null,
+              new String[] {"must not be null."},
+              "No field name provided to assert."),
+          // -- Field name is blank
+          Arguments.of(
+              "When field name is blank",
+              "",
+              new String[] {"must not be null."},
+              "No field name provided to assert."),
+          // -- Field name not found
+          Arguments.of(
+              "When field name not found",
+              "address",
+              new String[] {"must not be null."},
+              "Field address not found or has no violations."),
+          // -- Expected violations is null
+          Arguments.of(
+              "When expected violations is null",
+              "firstName",
+              null,
+              "No violation provided to assert."),
+          // -- Expected violations is empty
+          Arguments.of(
+              "When expected violations is empty",
+              "firstName",
+              new String[] {},
+              "No violation provided to assert."));
     }
 
-    @Test
-    @DisplayName("When no expected violation fragment to assert is provided")
-    void expectedViolationsNotProvided() {
-      assertThatThrownBy(() -> givenInstance(new Contact()).fieldHasErrorContaining("firstName"))
-          .isInstanceOf(IllegalArgumentException.class)
-          .hasMessage("No expected violation provided to assert.");
-    }
-
-    @Test
-    @DisplayName("When expected violation fragments to assert is provided as null")
-    void expectedViolationsProvidedAsNull() {
+    @ParameterizedTest
+    @MethodSource("argumentValidationScenarios")
+    void assertArgumentValidation(
+        String scenario, String fieldName, String[] violations, String expectedMessage) {
       assertThatThrownBy(
-              () -> givenInstance(new Contact()).fieldHasErrorContaining("firstName", null))
+              () -> givenInstance(new Contact()).fieldHasErrorContaining(fieldName, violations))
+          .withFailMessage(scenario)
           .isInstanceOf(IllegalArgumentException.class)
-          .hasMessage("No expected violation provided to assert.");
+          .hasMessage(expectedMessage);
     }
 
     @Test
@@ -183,6 +225,16 @@ class StandardAssertConstraintViolationTest {
       assertThatCode(
               () ->
                   givenInstance(new Contact()).fieldHasErrorContaining("firstName", "not be null"))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName("When the field has a validation matching with one of the expected regex")
+    void withMatchingViolationRegex() {
+      assertThatCode(
+              () ->
+                  givenInstance(new Contact())
+                      .fieldHasErrorContaining("firstName", "^.* not be null$"))
           .doesNotThrowAnyException();
     }
 
@@ -236,6 +288,92 @@ class StandardAssertConstraintViolationTest {
                   givenInstance(new Contact(), Contact.ProfessionalContact.class)
                       .fieldHasErrorContaining("companyName", "not be null"))
           .doesNotThrowAnyException();
+    }
+  }
+
+  @Nested
+  @DisplayName("Given I check that a bean instance field does not have an specific violation")
+  class FieldHasNoneOfErrorsTest {
+
+    static Stream<Arguments> argumentValidationScenarios() {
+      return Stream.of(
+          // -- Field name is null
+          Arguments.of(
+              "When field name is null",
+              null,
+              new String[] {"must not be null"},
+              "No field name provided to assert."),
+          // -- Field name is blank
+          Arguments.of(
+              "When field name is blank",
+              "",
+              new String[] {"must not be null"},
+              "No field name provided to assert."),
+          // -- Unexpected violations is null
+          Arguments.of(
+              "When unexpected violations is null",
+              "address",
+              null,
+              "No violation provided to assert."),
+          // -- Unexpected violations is empty
+          Arguments.of(
+              "When unexpected violations is empty",
+              "address",
+              new String[] {},
+              "No violation provided to assert."));
+    }
+
+    @ParameterizedTest
+    @MethodSource("argumentValidationScenarios")
+    void assertArgumentValidation(
+        String scenario, String fieldName, String[] violations, String expectedMessage) {
+      assertThatThrownBy(
+              () -> givenInstance(new Contact()).fieldHasNoneOfErrors(fieldName, violations))
+          .withFailMessage(scenario)
+          .isInstanceOf(IllegalArgumentException.class)
+          .hasMessage(expectedMessage);
+    }
+
+    @Test
+    @DisplayName("When the field has a violation exactly matching one of the unexpected violations")
+    void hasMatchingViolation() {
+      assertThatThrownBy(
+              () ->
+                  givenInstance(new Contact())
+                      .fieldHasNoneOfErrors("firstName", "must not be null"))
+          .isInstanceOf(AssertionError.class)
+          .hasMessage(
+              "Field firstName not expected to have any of violations [must not be null]. Violations found for the field: [must not be null]");
+    }
+
+    @Test
+    @DisplayName(
+        "When the field does not have a violation exactly matching one of the unexpected violations")
+    void doesNotHaveMatchingViolation() {
+      assertThatCode(
+              () ->
+                  givenInstance(new Contact())
+                      .fieldHasNoneOfErrors("firstName", "length must be between 3 and 140"))
+          .doesNotThrowAnyException();
+    }
+
+    @Test
+    @DisplayName(
+        "When a validation group is received to assert that there are no expectation violations")
+    void applyingValidationGroupsWhenReceived() {
+      assertThatCode(
+              () ->
+                  givenInstance(new Contact())
+                      .fieldHasNoneOfErrors("companyName", "must not be null"))
+          .doesNotThrowAnyException();
+
+      assertThatThrownBy(
+              () ->
+                  givenInstance(new Contact(), Contact.ProfessionalContact.class)
+                      .fieldHasNoneOfErrors("companyName", "must not be null"))
+          .isInstanceOf(AssertionError.class)
+          .hasMessage(
+              "Field companyName not expected to have any of violations [must not be null]. Violations found for the field: [must not be null]");
     }
   }
 }
