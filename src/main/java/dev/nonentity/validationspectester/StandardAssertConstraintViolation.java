@@ -69,7 +69,7 @@ public final class StandardAssertConstraintViolation implements AssertConstraint
    * @return A new instance of this class populated with the constraints violation message grouped
    *     by property path.
    */
-  public static AssertConstraintViolation givenInstance(
+  public static AssertConstraintViolation givenBeanInstance(
       Object instance, Validator validator, Class<?>... validationGroups) {
     Set<ConstraintViolation<Object>> violations = validator.validate(instance, validationGroups);
     Map<String, Set<String>> violationsPerField =
@@ -86,18 +86,18 @@ public final class StandardAssertConstraintViolation implements AssertConstraint
    * Creates a new instance of this class after validate the received bean instance, using a default
    * validator initialized by this method and optionally applying any validation group. Apart from
    * initialize a default instance of {@link Validator}, this method delegates to {@link
-   * #givenInstance(Object, Validator, Class[])} method to produce a new instance of this class.
+   * #givenBeanInstance(Object, Validator, Class[])} method to produce a new instance of this class.
    *
    * @param instance Bean instance being validated.
    * @param validationGroups Optional array of validation groups that will be used to validate the
    *     received bean instance.
-   * @return Instance of this class returned by {@link #givenInstance(Object, Validator, Class[])}
-   *     "as-is".
+   * @return Instance of this class returned by {@link #givenBeanInstance(Object, Validator,
+   *     Class[])} "as-is".
    */
-  public static AssertConstraintViolation givenInstance(
+  public static AssertConstraintViolation givenBeanInstance(
       Object instance, Class<?>... validationGroups) {
     try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
-      return givenInstance(instance, validatorFactory.getValidator(), validationGroups);
+      return givenBeanInstance(instance, validatorFactory.getValidator(), validationGroups);
     }
   }
 
