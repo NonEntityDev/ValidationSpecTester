@@ -21,44 +21,45 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *   THE SOFTWARE.
  */
-package dev.nonentity.validationspectester;
+package io.github.nonentitydev.validationspectester;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 @Suite
 @SelectClasses({
-  FieldHasErrorTest.class,
-  FieldHasErrorContainingTest.class,
-  FieldHasNoneOfErrorsTest.class,
-  FieldHasNoneOfErrorsContainingTest.class,
-  FieldHasNoErrorTest.class
+        FieldHasErrorTest.class,
+        FieldHasErrorContainingTest.class,
+        FieldHasNoneOfErrorsTest.class,
+        FieldHasNoneOfErrorsContainingTest.class,
+        FieldHasNoErrorTest.class
 })
 class StandardAssertConstraintViolationTest {
 
-  @Nested
-  @DisplayName("Given I create a new instance of the StandardAssertConstraintViolation class")
-  class ConstructorsTest {
+    @Nested
+    @DisplayName("Given I create a new instance of the StandardAssertConstraintViolation class")
+    class ConstructorsTest {
 
-    @Test
-    @DisplayName("When using the default non-argument constructor")
-    void unableToUsedDefaultConstructor() {
-      Constructor<?> constructor =
-          StandardAssertConstraintViolation.class.getDeclaredConstructors()[0];
-      constructor.setAccessible(true);
+        @Test
+        @DisplayName("When using the default non-argument constructor")
+        void unableToUsedDefaultConstructor() {
+            Constructor<?> constructor =
+                    StandardAssertConstraintViolation.class.getDeclaredConstructors()[0];
+            constructor.setAccessible(true);
 
-      assertThatThrownBy(constructor::newInstance)
-          .isInstanceOf(InvocationTargetException.class)
-          .cause()
-          .isInstanceOf(UnsupportedOperationException.class)
-          .hasMessage("This class was not meant to be instantiated using its default constructor.");
+            assertThatThrownBy(constructor::newInstance)
+                    .isInstanceOf(InvocationTargetException.class)
+                    .cause()
+                    .isInstanceOf(UnsupportedOperationException.class)
+                    .hasMessage("This class was not meant to be instantiated using its default constructor.");
+        }
     }
-  }
 }

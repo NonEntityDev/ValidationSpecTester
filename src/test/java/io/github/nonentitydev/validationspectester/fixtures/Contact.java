@@ -21,7 +21,7 @@
  *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  *   THE SOFTWARE.
  */
-package dev.nonentity.validationspectester.fixtures;
+package io.github.nonentitydev.validationspectester.fixtures;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -29,51 +29,52 @@ import org.hibernate.validator.constraints.Length;
 
 public class Contact {
 
-  @NotNull
-  @Length(min = 3, max = 140)
-  private String firstName;
+    @NotNull
+    @Length(min = 3, max = 140)
+    private String firstName;
 
-  @Length(min = 3, max = 140)
-  private String surname;
+    @Length(min = 3, max = 140)
+    private String surname;
 
-  @Email
-  @Length(min = 3, max = 140)
-  private String email;
+    @Email
+    @Length(min = 3, max = 140)
+    private String email;
 
-  @NotNull(groups = ProfessionalContact.class)
-  private String companyName;
+    @NotNull(groups = ProfessionalContact.class)
+    private String companyName;
 
-  public String getFirstName() {
-    return firstName;
-  }
+    public String getFirstName() {
+        return firstName;
+    }
 
-  public void setFirstName(String firstName) {
-    this.firstName = firstName;
-  }
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
 
-  public String getSurname() {
-    return surname;
-  }
+    public String getSurname() {
+        return surname;
+    }
 
-  public void setSurname(String surname) {
-    this.surname = surname;
-  }
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
 
-  public String getEmail() {
-    return email;
-  }
+    public String getEmail() {
+        return email;
+    }
 
-  public void setEmail(String email) {
-    this.email = email;
-  }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-  public String getCompanyName() {
-    return companyName;
-  }
+    public String getCompanyName() {
+        return companyName;
+    }
 
-  public void setCompanyName(String companyName) {
-    this.companyName = companyName;
-  }
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
 
-  public interface ProfessionalContact {}
+    public interface ProfessionalContact {
+    }
 }
