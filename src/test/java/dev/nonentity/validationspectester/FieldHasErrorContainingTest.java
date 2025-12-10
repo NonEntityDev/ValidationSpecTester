@@ -23,7 +23,6 @@
  */
 package dev.nonentity.validationspectester;
 
-import static dev.nonentity.validationspectester.StandardAssertConstraintViolation.givenInstance;
 import static org.assertj.core.api.Assertions.*;
 
 import dev.nonentity.validationspectester.fixtures.Contact;
@@ -76,7 +75,7 @@ class FieldHasErrorContainingTest {
   void assertArgumentValidation(
       String scenario, String fieldName, String[] violations, String expectedMessage) {
     assertThatThrownBy(
-            () -> givenInstance(new Contact()).fieldHasErrorContaining(fieldName, violations))
+            () -> StandardAssertConstraintViolation.givenBeanInstance(new Contact()).fieldHasErrorContaining(fieldName, violations))
         .withFailMessage(scenario)
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage(expectedMessage);
@@ -86,14 +85,14 @@ class FieldHasErrorContainingTest {
   @DisplayName("When the field has a validation matching with one of the expected fragments")
   void withMatchingViolation() {
     assertThatCode(
-            () -> givenInstance(new Contact()).fieldHasErrorContaining("firstName", "not be null"))
+            () -> StandardAssertConstraintViolation.givenBeanInstance(new Contact()).fieldHasErrorContaining("firstName", "not be null"))
         .doesNotThrowAnyException();
   }
 
   @Test
   @DisplayName("When the field has a validation matching with one of the expected regex")
   void withMatchingViolationRegex() {
-    AssertConstraintViolation testHelper = givenInstance(new Contact());
+    AssertConstraintViolation testHelper = StandardAssertConstraintViolation.givenBeanInstance(new Contact());
     assertThat(testHelper.fieldHasErrorContaining("firstName", "^.* not be null$"))
         .isSameAs(testHelper);
   }
@@ -103,7 +102,7 @@ class FieldHasErrorContainingTest {
   void withoutMatchingViolation() {
     assertThatThrownBy(
             () ->
-                givenInstance(new Contact())
+                StandardAssertConstraintViolation.givenBeanInstance(new Contact())
                     .fieldHasErrorContaining("firstName", "between 3 and 140"))
         .isInstanceOf(AssertionError.class)
         .hasMessage(
@@ -117,7 +116,7 @@ class FieldHasErrorContainingTest {
     contact.setEmail("an");
 
     assertThatCode(
-            () -> givenInstance(contact).fieldHasErrorContaining("email", "formed email address"))
+            () -> StandardAssertConstraintViolation.givenBeanInstance(contact).fieldHasErrorContaining("email", "formed email address"))
         .doesNotThrowAnyException();
   }
 
@@ -126,7 +125,7 @@ class FieldHasErrorContainingTest {
   void fieldHasLessViolations() {
     assertThatThrownBy(
             () ->
-                givenInstance(new Contact())
+                StandardAssertConstraintViolation.givenBeanInstance(new Contact())
                     .fieldHasErrorContaining("firstName", "not be null", "between 3 and 140"))
         .isInstanceOf(AssertionError.class)
         .hasMessage(
@@ -138,14 +137,14 @@ class FieldHasErrorContainingTest {
   void appliedValidationGroupsWhenReceived() {
     assertThatThrownBy(
             () ->
-                givenInstance(new Contact())
+                StandardAssertConstraintViolation.givenBeanInstance(new Contact())
                     .fieldHasErrorContaining("companyName", "must not be null"))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("Field companyName not found or has no violations.");
 
     assertThatCode(
             () ->
-                givenInstance(new Contact(), Contact.ProfessionalContact.class)
+                StandardAssertConstraintViolation.givenBeanInstance(new Contact(), Contact.ProfessionalContact.class)
                     .fieldHasErrorContaining("companyName", "not be null"))
         .doesNotThrowAnyException();
   }

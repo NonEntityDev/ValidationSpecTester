@@ -23,7 +23,6 @@
  */
 package dev.nonentity.validationspectester;
 
-import static dev.nonentity.validationspectester.StandardAssertConstraintViolation.givenInstance;
 import static org.assertj.core.api.Assertions.*;
 
 import dev.nonentity.validationspectester.fixtures.Contact;
@@ -36,7 +35,7 @@ class FieldHasNoErrorTest {
   @Test
   @DisplayName("When field name is null")
   void fieldNameIsNull() {
-    assertThatThrownBy(() -> givenInstance(new Contact()).fieldHasNoError(null))
+    assertThatThrownBy(() -> StandardAssertConstraintViolation.givenBeanInstance(new Contact()).fieldHasNoError(null))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("No field name provided to assert.");
   }
@@ -44,7 +43,7 @@ class FieldHasNoErrorTest {
   @Test
   @DisplayName("When field name is blank")
   void fieldNameIsBlank() {
-    assertThatThrownBy(() -> givenInstance(new Contact()).fieldHasNoError(" "))
+    assertThatThrownBy(() -> StandardAssertConstraintViolation.givenBeanInstance(new Contact()).fieldHasNoError(" "))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage("No field name provided to assert.");
   }
@@ -52,7 +51,7 @@ class FieldHasNoErrorTest {
   @Test
   @DisplayName("When field has violations")
   void fieldHasErrors() {
-    assertThatThrownBy(() -> givenInstance(new Contact()).fieldHasNoError("firstName"))
+    assertThatThrownBy(() -> StandardAssertConstraintViolation.givenBeanInstance(new Contact()).fieldHasNoError("firstName"))
         .isInstanceOf(AssertionError.class)
         .hasMessage(
             "Field firstName not expected to have violations. Violations found: [must not be null]");
@@ -61,19 +60,19 @@ class FieldHasNoErrorTest {
   @Test
   @DisplayName("When field has no violations")
   void fieldHasNoErrors() {
-    AssertConstraintViolation testHelper = givenInstance(new Contact());
+    AssertConstraintViolation testHelper = StandardAssertConstraintViolation.givenBeanInstance(new Contact());
     assertThat(testHelper.fieldHasNoError("companyName")).isSameAs(testHelper);
   }
 
   @Test
   @DisplayName("When a validation group is informed")
   void applyingValidationGroup() {
-    assertThatCode(() -> givenInstance(new Contact()).fieldHasNoError("companyName"))
+    assertThatCode(() -> StandardAssertConstraintViolation.givenBeanInstance(new Contact()).fieldHasNoError("companyName"))
         .doesNotThrowAnyException();
 
     assertThatThrownBy(
             () ->
-                givenInstance(new Contact(), Contact.ProfessionalContact.class)
+                StandardAssertConstraintViolation.givenBeanInstance(new Contact(), Contact.ProfessionalContact.class)
                     .fieldHasNoError("companyName"))
         .isInstanceOf(AssertionError.class)
         .hasMessage(

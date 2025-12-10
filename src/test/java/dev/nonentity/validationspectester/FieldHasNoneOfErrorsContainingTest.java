@@ -23,7 +23,6 @@
  */
 package dev.nonentity.validationspectester;
 
-import static dev.nonentity.validationspectester.StandardAssertConstraintViolation.givenInstance;
 import static org.assertj.core.api.Assertions.*;
 
 import dev.nonentity.validationspectester.fixtures.Contact;
@@ -72,7 +71,7 @@ class FieldHasNoneOfErrorsContainingTest {
       String scenario, String fieldName, String[] violations, String expectedMessage) {
     assertThatThrownBy(
             () ->
-                givenInstance(new Contact()).fieldHasNoneOfErrorsContaining(fieldName, violations))
+                StandardAssertConstraintViolation.givenBeanInstance(new Contact()).fieldHasNoneOfErrorsContaining(fieldName, violations))
         .withFailMessage(scenario)
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessage(expectedMessage);
@@ -81,7 +80,7 @@ class FieldHasNoneOfErrorsContainingTest {
   @Test
   @DisplayName("When there is no violation matching the received fragments")
   void noViolationMatches() {
-    AssertConstraintViolation testHelper = givenInstance(new Contact());
+    AssertConstraintViolation testHelper = StandardAssertConstraintViolation.givenBeanInstance(new Contact());
     assertThat(testHelper.fieldHasNoneOfErrorsContaining("firstName", "between 3 and 140"))
         .isSameAs(testHelper);
   }
@@ -119,7 +118,7 @@ class FieldHasNoneOfErrorsContainingTest {
 
     assertThatThrownBy(
             () ->
-                givenInstance(new Contact())
+                StandardAssertConstraintViolation.givenBeanInstance(new Contact())
                     .fieldHasNoneOfErrorsContaining(fieldName, unexpectedViolations))
         .withFailMessage(scenario)
         .isInstanceOf(AssertionError.class)
@@ -136,13 +135,13 @@ class FieldHasNoneOfErrorsContainingTest {
   void appliedValidationGroupsWhenReceived() {
     assertThatCode(
             () ->
-                givenInstance(new Contact())
+                StandardAssertConstraintViolation.givenBeanInstance(new Contact())
                     .fieldHasNoneOfErrorsContaining("companyName", "not be null"))
         .doesNotThrowAnyException();
 
     assertThatThrownBy(
             () ->
-                givenInstance(new Contact(), Contact.ProfessionalContact.class)
+                StandardAssertConstraintViolation.givenBeanInstance(new Contact(), Contact.ProfessionalContact.class)
                     .fieldHasNoneOfErrorsContaining("companyName", "^.* not be null$"))
         .isInstanceOf(AssertionError.class)
         .hasMessage(
