@@ -6,9 +6,9 @@
 
     <groupId>io.github.nonentitydev</groupId>
     <artifactId>validationspectester</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 
-    <name>ValidationSpecTester</name>
+    <name>${project.groupId}:${project.artifactId}</name>
     <description>Idiomatic tiny library to make bean validation tests more enjoyable to write.</description>
     <url>https://github.com/NonEntityDev/ValidationSpecTester</url>
 
@@ -29,7 +29,11 @@
         <plugin.mycila.license>5.0.0</plugin.mycila.license>
         <plugin.jacoco>0.8.14</plugin.jacoco>
         <plugin.maven.surefire>3.5.2</plugin.maven.surefire>
+        <plugin.maven.source>3.4.0</plugin.maven.source>
         <plugin.maven.javadoc>3.12.0</plugin.maven.javadoc>
+        <plugin.maven.gpg>3.2.8</plugin.maven.gpg>
+        <plugin.sonatype.central>0.9.0</plugin.sonatype.central>
+        <plugin.maven.versions>2.20.1</plugin.maven.versions>
     </properties>
 
     <scm>
@@ -95,6 +99,82 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${plugin.maven.source}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${plugin.maven.javadoc}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadoc</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <stylesheet>java</stylesheet>
+                            <doclint>none</doclint>
+                        </configuration>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${plugin.maven.gpg}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${plugin.sonatype.central}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <checksum>all</checksum>
+                            <autoPublish>true</autoPublish>
+                        </configuration>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>
@@ -212,10 +292,11 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${plugin.maven.javadoc}</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>${plugin.maven.versions}</version>
             </plugin>
+
         </plugins>
     </build>
 
