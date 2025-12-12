@@ -57,7 +57,7 @@ public final class StandardAssertConstraintViolation implements AssertConstraint
     }
 
     /**
-     * Creates a new instance of this class after validate the received bean instance, using the
+     * Creates a new instance of this class after validating the received bean instance, using the
      * received validator and optionally applying any validation group. The set of constraint
      * violation messages produced by the validation is grouped by property path and provided to this
      * class' constructor. The returned class instance has the single responsibility to assert against
@@ -84,9 +84,9 @@ public final class StandardAssertConstraintViolation implements AssertConstraint
     }
 
     /**
-     * Creates a new instance of this class after validate the received bean instance, using a default
+     * Creates a new instance of this class after validating the received bean instance, using a default
      * validator initialized by this method and optionally applying any validation group. Apart from
-     * initialize a default instance of {@link Validator}, this method delegates to {@link
+     * initializing a default instance of {@link Validator}, this method delegates to {@link
      * #givenBeanInstance(Object, Validator, Class[])} method to produce a new instance of this class.
      *
      * @param instance         Bean instance being validated.
@@ -136,7 +136,7 @@ public final class StandardAssertConstraintViolation implements AssertConstraint
 
         List<String> actual = this.violationsPerField.get(fieldName).stream().sorted().toList();
         List<String> expected = Stream.of(expectedViolations).sorted().toList();
-        assertThat(actual.stream().sorted().collect(Collectors.toSet()))
+        assertThat(actual)
                 .withFailMessage(
                         "Field %s expected to have the violations %s, but violations %s were found.",
                         fieldName, expected, actual)
@@ -220,12 +220,12 @@ public final class StandardAssertConstraintViolation implements AssertConstraint
         boolean allFragmentsMatching =
                 unexpected.stream()
                         .anyMatch(
-                                (String expectedViolationFragment) -> {
+                                (String unexpectedViolationFragment) -> {
                                     Predicate<String> containsSubString =
                                             (String actualViolation) ->
-                                                    actualViolation.contains(expectedViolationFragment);
+                                                    actualViolation.contains(unexpectedViolationFragment);
 
-                                    Pattern regexPattern = Pattern.compile(expectedViolationFragment);
+                                    Pattern regexPattern = Pattern.compile(unexpectedViolationFragment);
                                     Predicate<String> matchesRegexPattern =
                                             (String actualViolation) -> regexPattern.matcher(actualViolation).find();
 

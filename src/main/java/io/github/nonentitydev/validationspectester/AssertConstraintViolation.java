@@ -24,7 +24,7 @@
 package io.github.nonentitydev.validationspectester;
 
 /**
- * Established the common behavior for any implementation of the helper class to assert constraint
+ * Establishes the common behavior for any implementation of the helper class to assert constraint
  * violations, as designed in this library. The main goal to have a class to help with constraint
  * violation assertions is to abstract the application test suite from {@link
  * jakarta.validation.Validator} details, offering a high level API to assert violations,
@@ -35,7 +35,7 @@ public interface AssertConstraintViolation {
 
     /**
      * Asserts that, after validating the bean instance, optionally using the validation groups, the
-     * field has all the expected violations. This assertion will check for exactly matches.
+     * field has all the expected violations. This assertion will check for exact matches.
      *
      * @param fieldName          Name of the field to have violations being checked.
      * @param expectedViolations One or more violation messages expected for the field.
@@ -71,7 +71,7 @@ public interface AssertConstraintViolation {
 
     /**
      * Assert that, after validating the bean, optionally using validation groups, the field has none
-     * of the received violations. The assertion will check for exactly matches.
+     * of the received violations. The assertion will check for exact matches.
      *
      * @param fieldName            Name of the field to have violations being checked.
      * @param unexpectedViolations One or more violation messages not expected for the field.

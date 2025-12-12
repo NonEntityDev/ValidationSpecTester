@@ -20,9 +20,9 @@ Add the library to your Maven project:
 
 ```xml
 <dependency>
-  <groupId>dev.nonentity</groupId>
-  <artifactId>validation-spec-tester</artifactId>
-  <version>0.1.0</version>
+  <groupId>io.github.nonentitydev</groupId>
+  <artifactId>validationspectester</artifactId>
+  <version>0.1.1</version>
   <scope>test</scope>
 </dependency>
 ```

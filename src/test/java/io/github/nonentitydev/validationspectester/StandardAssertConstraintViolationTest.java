@@ -50,7 +50,7 @@ class StandardAssertConstraintViolationTest {
 
         @Test
         @DisplayName("When using the default non-argument constructor")
-        void unableToUsedDefaultConstructor() {
+        void unableToUseDefaultConstructor() {
             Constructor<?> constructor =
                     StandardAssertConstraintViolation.class.getDeclaredConstructors()[0];
             constructor.setAccessible(true);

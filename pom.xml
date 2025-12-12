@@ -78,6 +78,7 @@
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>${dependency.assertJ}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
