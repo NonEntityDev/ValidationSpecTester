@@ -1,0 +1,59 @@
+/*
+ * The MIT License
+ *
+ *   Copyright (c) 2025, Andre Silva (contact.nonentity@tutamail.com)
+ *
+ *   Permission is hereby granted, free of charge, to any person obtaining a copy
+ *   of this software and associated documentation files (the "Software"), to deal
+ *   in the Software without restriction, including without limitation the rights
+ *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *   copies of the Software, and to permit persons to whom the Software is
+ *   furnished to do so, subject to the following conditions:
+ *
+ *   The above copyright notice and this permission notice shall be included in
+ *   all copies or substantial portions of the Software.
+ *
+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ *   THE SOFTWARE.
+ */
+package io.github.nonentitydev.validationspectester.spec;
+
+/**
+ * Establishes the common behaviour for any implementation of the helper class to assert
+ * validation constraints of a bean type. The main goal is to have a class to help to
+ * assert the constraints defined in a bean type by defining a "test by specification" DSL
+ * and eliminate the requirement of scenario arrangement steps.
+ */
+public interface AssertConstraintSpec {
+
+    /**
+     * Defines the field that the assertions following this method will be asserting against.
+     *
+     * @param fieldName Name of the field to be tested.
+     * @return Same object instance, providing a fluid api.
+     */
+    AssertConstraintSpec field(String fieldName);
+
+    /**
+     * Defines validation group(s) that will be applied to every assertion following the
+     * invocation of this method.
+     *
+     * @param groups Validation groups to be applied to following assertions.
+     * @return Same object instance, providing a fluid api.
+     */
+    AssertConstraintSpec withGroups(Class<?>... groups);
+
+    /**
+     * Defines that no validation group will be applied to assertions following the
+     * invocation of this method.
+     *
+     * @return Same object instance, providing a fluid api.
+     */
+    AssertConstraintSpec withNoGroups();
+
+}
