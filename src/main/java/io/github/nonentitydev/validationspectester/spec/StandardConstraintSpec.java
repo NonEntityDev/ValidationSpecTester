@@ -23,57 +23,91 @@
  */
 package io.github.nonentitydev.validationspectester.spec;
 
+import io.github.nonentitydev.validationspectester.spec.asserts.CommonConstraintsAssertion;
+import io.github.nonentitydev.validationspectester.spec.reflection.ReflectionHelper;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import org.apache.commons.lang3.reflect.FieldUtils;
-import org.objenesis.ObjenesisStd;
-
 import java.lang.reflect.Field;
+import java.util.function.Supplier;
 
 public final class StandardConstraintSpec implements AssertConstraintSpec {
 
-    private final Object beanInstance;
-    private final Validator validator;
-    private Field field;
-    private Class<?>[] groups;
+  private final Object beanInstance;
+  private final Validator validator;
+  private Field field;
+  private Class<?>[] groups = new Class<?>[] {};
+  private Supplier<Object> fieldInstanceSupplier;
 
-    private StandardConstraintSpec() {
-        throw new UnsupportedOperationException(
-                "This class was not meant to be instantiated using its default constructor.");
-    }
+  private StandardConstraintSpec() {
+    throw new UnsupportedOperationException(
+        "This class was not meant to be instantiated using its default constructor.");
+  }
 
-    private StandardConstraintSpec(Object beanInstance, Validator validator) {
-        this.beanInstance = beanInstance;
-        this.validator = validator;
-    }
+  private StandardConstraintSpec(Object beanInstance, Validator validator) {
+    this.beanInstance = beanInstance;
+    this.validator = validator;
+  }
 
-    public static AssertConstraintSpec givenBeanType(Class<?> beanType, Validator validator) {
-        Object beanInstance = new ObjenesisStd().newInstance(beanType);
-        return new StandardConstraintSpec(beanInstance, validator);
-    }
+  public static AssertConstraintSpec givenBeanType(Class<?> beanType, Validator validator) {
+    Object beanInstance = ReflectionHelper.newInstanceOfType(beanType);
+    return new StandardConstraintSpec(beanInstance, validator);
+  }
 
-    public static AssertConstraintSpec givenBeanType(Class<?> beanType) {
-        try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
-            return givenBeanType(beanType, validatorFactory.getValidator());
-        }
+  public static AssertConstraintSpec givenBeanType(Class<?> beanType) {
+    try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
+      return givenBeanType(beanType, validatorFactory.getValidator());
     }
+  }
 
-    @Override
-    public AssertConstraintSpec field(String fieldName) {
-        this.field = FieldUtils.getField(this.beanInstance.getClass(), fieldName, true);
-        return this;
-    }
+  /** {@inheritDoc} */
+  @Override
+  public AssertConstraintSpec field(String fieldName) {
+    this.field = ReflectionHelper.getFieldByName(this.beanInstance.getClass(), fieldName);
+    this.fieldInstanceSupplier = () -> ReflectionHelper.newInstanceOfFieldType(this.field);
+    return this;
+  }
 
-    @Override
-    public AssertConstraintSpec withGroups(Class<?>... groups) {
-        this.groups = groups;
-        return this;
-    }
+  /** {@inheritDoc} */
+  @Override
+  public AssertConstraintSpec field(String fieldName, Supplier<Object> newInstanceSupplier) {
+    this.field = ReflectionHelper.getFieldByName(this.beanInstance.getClass(), fieldName);
+    this.fieldInstanceSupplier = newInstanceSupplier;
+    return this;
+  }
 
-    @Override
-    public AssertConstraintSpec withNoGroups() {
-        this.groups = null;
-        return this;
-    }
+  /** {@inheritDoc} */
+  @Override
+  public AssertConstraintSpec withGroups(Class<?>... groups) {
+    this.groups = groups;
+    return this;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public AssertConstraintSpec withNoGroups() {
+    this.groups = new Class<?>[] {};
+    return this;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public AssertConstraintSpec shouldNotBeNull(String expectedMessage, boolean exactMatch) {
+    CommonConstraintsAssertion.shouldNotBeNull(
+        this.beanInstance,
+        this.field,
+        this.fieldInstanceSupplier,
+        this.validator,
+        this.groups,
+        expectedMessage,
+        exactMatch);
+    return this;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public AssertConstraintSpec shouldNotBeNull() {
+    this.shouldNotBeNull("must not be null", true);
+    return this;
+  }
 }

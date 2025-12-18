@@ -23,113 +23,146 @@
  */
 package io.github.nonentitydev.validationspectester.spec;
 
+import static io.github.nonentitydev.validationspectester.spec.StandardConstraintSpec.givenBeanType;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import io.github.nonentitydev.validationspectester.fixtures.Contact;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.function.Supplier;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-
-import static io.github.nonentitydev.validationspectester.spec.StandardConstraintSpec.givenBeanType;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
+@Suite
+@SelectClasses({CommonConstraintAssertionsTest.class})
 class StandardConstraintSpecTest {
 
-    @Nested
-    @DisplayName("Given I am preparing to assert the constraint specifications of a bean type")
-    class BeforeAssertingTest {
+  @Nested
+  @DisplayName("Given I am preparing to assert the constraint specifications of a bean type")
+  class BeforeAssertingTest {
 
-        @Test
-        @DisplayName("When I try to create an instance of StandardConstraintSpec")
-        void cantBeInstantiated() {
-            Constructor<?> constructor = StandardConstraintSpec.class.getDeclaredConstructors()[0];
-            constructor.setAccessible(true);
+    @Test
+    @DisplayName("When I try to create an instance of StandardConstraintSpec")
+    void cantBeInstantiated() {
+      Constructor<?> constructor = StandardConstraintSpec.class.getDeclaredConstructors()[0];
+      constructor.setAccessible(true);
 
-            assertThatThrownBy(constructor::newInstance)
-                    .isInstanceOf(InvocationTargetException.class)
-                    .cause()
-                    .isInstanceOf(UnsupportedOperationException.class)
-                    .hasMessage("This class was not meant to be instantiated using its default constructor.");
-        }
-
-        @Test
-        @DisplayName("When I initialize an instance with a default validator")
-        void initializingWithDefaultValidator() throws IllegalAccessException {
-            AssertConstraintSpec spec = givenBeanType(Contact.class);
-
-            Object beanInstance = FieldUtils.readField(spec, "beanInstance", true);
-            assertThat(beanInstance).isNotNull().isInstanceOf(Contact.class);
-
-            Object validator = FieldUtils.readField(spec, "validator", true);
-            assertThat(validator).isNotNull().isInstanceOf(Validator.class);
-
-            Field field = (Field) FieldUtils.readField(spec, "field", true);
-            assertThat(field).isNull();
-
-            Class<?>[] groups = (Class<?>[]) FieldUtils.readField(spec, "groups", true);
-            assertThat(groups).isNull();
-        }
-
-        @Test
-        @DisplayName("When I initialize an instance with a custom validator")
-        void initializeWithCustomValidator() throws IllegalAccessException {
-            try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
-                Validator customValidator = validatorFactory.getValidator();
-                AssertConstraintSpec spec = givenBeanType(Contact.class, customValidator);
-
-                Object beanInstance = FieldUtils.readField(spec, "beanInstance", true);
-                assertThat(beanInstance).isNotNull().isInstanceOf(Contact.class);
-
-                Object validator = FieldUtils.readField(spec, "validator", true);
-                assertThat(validator).isSameAs(customValidator);
-
-                Field field = (Field) FieldUtils.readField(spec, "field", true);
-                assertThat(field).isNull();
-
-                Class<?>[] groups = (Class<?>[]) FieldUtils.readField(spec, "groups", true);
-                assertThat(groups).isNull();
-            }
-        }
-
-        @Test
-        @DisplayName("When I set the field name to be tested")
-        void setFieldName() throws IllegalAccessException {
-            AssertConstraintSpec spec = givenBeanType(Contact.class)
-                    .field("email");
-
-            Field fieldName = (Field) FieldUtils.readField(spec, "field", true);
-            assertThat(fieldName.getName()).isEqualTo("email");
-        }
-
-        @Test
-        @DisplayName("When I set the validation groups")
-        void setValidationGroups() throws IllegalAccessException {
-            AssertConstraintSpec spec = givenBeanType(Contact.class)
-                    .withGroups(Contact.ProfessionalContact.class);
-
-            Class<?>[] groups = (Class<?>[]) FieldUtils.readField(spec, "groups", true);
-            assertThat(groups).containsExactly(Contact.ProfessionalContact.class);
-        }
-
-        @Test
-        @DisplayName("When I reset the validation groups to none")
-        void resetValidationGroups() throws IllegalAccessException {
-            AssertConstraintSpec spec = givenBeanType(Contact.class).withGroups(Contact.ProfessionalContact.class);
-
-            Class<?>[] groups = (Class<?>[]) FieldUtils.readField(spec, "groups", true);
-            assertThat(groups).containsExactly(Contact.ProfessionalContact.class);
-
-            spec.withNoGroups();
-            groups = (Class<?>[]) FieldUtils.readField(spec, "groups", true);
-            assertThat(groups).isNull();
-        }
+      assertThatThrownBy(constructor::newInstance)
+          .isInstanceOf(InvocationTargetException.class)
+          .cause()
+          .isInstanceOf(UnsupportedOperationException.class)
+          .hasMessage("This class was not meant to be instantiated using its default constructor.");
     }
+
+    @Test
+    @DisplayName("When I initialize an instance with a default validator")
+    @SuppressWarnings("unchecked")
+    void initializingWithDefaultValidator() throws IllegalAccessException {
+      AssertConstraintSpec spec = givenBeanType(Contact.class);
+
+      Object beanInstance = FieldUtils.readField(spec, "beanInstance", true);
+      assertThat(beanInstance).isNotNull().isInstanceOf(Contact.class);
+
+      Object validator = FieldUtils.readField(spec, "validator", true);
+      assertThat(validator).isNotNull().isInstanceOf(Validator.class);
+
+      Field field = (Field) FieldUtils.readField(spec, "field", true);
+      assertThat(field).isNull();
+
+      Supplier<Object> fieldInstanceSupplier =
+          (Supplier<Object>) FieldUtils.readField(spec, "fieldInstanceSupplier", true);
+      assertThat(fieldInstanceSupplier).isNull();
+
+      Class<?>[] groups = (Class<?>[]) FieldUtils.readField(spec, "groups", true);
+      assertThat(groups).isEmpty();
+    }
+
+    @Test
+    @DisplayName("When I initialize an instance with a custom validator")
+    @SuppressWarnings("unchecked")
+    void initializeWithCustomValidator() throws IllegalAccessException {
+      try (ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory()) {
+        Validator customValidator = validatorFactory.getValidator();
+        AssertConstraintSpec spec = givenBeanType(Contact.class, customValidator);
+
+        Object beanInstance = FieldUtils.readField(spec, "beanInstance", true);
+        assertThat(beanInstance).isNotNull().isInstanceOf(Contact.class);
+
+        Object validator = FieldUtils.readField(spec, "validator", true);
+        assertThat(validator).isSameAs(customValidator);
+
+        Field field = (Field) FieldUtils.readField(spec, "field", true);
+        assertThat(field).isNull();
+
+        Supplier<Object> fieldInstanceSupplier =
+            (Supplier<Object>) FieldUtils.readField(spec, "fieldInstanceSupplier", true);
+        assertThat(fieldInstanceSupplier).isNull();
+
+        Class<?>[] groups = (Class<?>[]) FieldUtils.readField(spec, "groups", true);
+        assertThat(groups).isEmpty();
+      }
+    }
+
+    @Test
+    @DisplayName("When I set the field to be tested without providing a custom instance supplier")
+    @SuppressWarnings("unchecked")
+    void setFieldWithoutCustomProvider() throws IllegalAccessException {
+      AssertConstraintSpec spec = givenBeanType(Contact.class).field("email");
+
+      Field field = (Field) FieldUtils.readField(spec, "field", true);
+      assertThat(field.getName()).isEqualTo("email");
+
+      Supplier<Object> supplier =
+          (Supplier<Object>) FieldUtils.readField(spec, "fieldInstanceSupplier", true);
+      assertThat(supplier).isNotNull();
+    }
+
+    @Test
+    @DisplayName("When I set the field to be tested providing a custom instance supplier")
+    @SuppressWarnings("unchecked")
+    void setFieldWithCustomProvider() throws IllegalAccessException {
+      Supplier<Object> supplier = String::new;
+      AssertConstraintSpec spec = givenBeanType(Contact.class).field("email", supplier);
+
+      Field field = (Field) FieldUtils.readField(spec, "field", true);
+      assertThat(field.getName()).isEqualTo("email");
+
+      Supplier<Object> retrievedSupplier =
+          (Supplier<Object>) FieldUtils.readField(spec, "fieldInstanceSupplier", true);
+      assertThat(retrievedSupplier).isSameAs(supplier);
+    }
+
+    @Test
+    @DisplayName("When I set the validation groups")
+    void setValidationGroups() throws IllegalAccessException {
+      AssertConstraintSpec spec =
+          givenBeanType(Contact.class).withGroups(Contact.ProfessionalContact.class);
+
+      Class<?>[] groups = (Class<?>[]) FieldUtils.readField(spec, "groups", true);
+      assertThat(groups).containsExactly(Contact.ProfessionalContact.class);
+    }
+
+    @Test
+    @DisplayName("When I reset the validation groups to none")
+    void resetValidationGroups() throws IllegalAccessException {
+      AssertConstraintSpec spec =
+          givenBeanType(Contact.class).withGroups(Contact.ProfessionalContact.class);
+
+      Class<?>[] groups = (Class<?>[]) FieldUtils.readField(spec, "groups", true);
+      assertThat(groups).containsExactly(Contact.ProfessionalContact.class);
+
+      spec.withNoGroups();
+      groups = (Class<?>[]) FieldUtils.readField(spec, "groups", true);
+      assertThat(groups).isEmpty();
+    }
+  }
 }

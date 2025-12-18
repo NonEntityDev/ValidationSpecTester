@@ -23,37 +23,67 @@
  */
 package io.github.nonentitydev.validationspectester.spec;
 
+import java.util.function.Supplier;
+
 /**
- * Establishes the common behaviour for any implementation of the helper class to assert
- * validation constraints of a bean type. The main goal is to have a class to help to
- * assert the constraints defined in a bean type by defining a "test by specification" DSL
- * and eliminate the requirement of scenario arrangement steps.
+ * Establishes the common behaviour for any implementation of the helper class to assert validation
+ * constraints of a bean type. The main goal is to have a class to help to assert the constraints
+ * defined in a bean type by defining a "test by specification" DSL and eliminate the requirement of
+ * scenario arrangement steps.
  */
 public interface AssertConstraintSpec {
 
-    /**
-     * Defines the field that the assertions following this method will be asserting against.
-     *
-     * @param fieldName Name of the field to be tested.
-     * @return Same object instance, providing a fluid api.
-     */
-    AssertConstraintSpec field(String fieldName);
+  /**
+   * Defines the field that the assertions following this method will be asserting against.
+   *
+   * @param fieldName Name of the field to be tested.
+   * @return Same object instance, providing a fluid api.
+   */
+  AssertConstraintSpec field(String fieldName);
 
-    /**
-     * Defines validation group(s) that will be applied to every assertion following the
-     * invocation of this method.
-     *
-     * @param groups Validation groups to be applied to following assertions.
-     * @return Same object instance, providing a fluid api.
-     */
-    AssertConstraintSpec withGroups(Class<?>... groups);
+  /**
+   * Defines the field that the assertions following this method will be asserting against. Any
+   * assertion that requires creating new instances of the field's type will use the provided
+   * supplier.
+   *
+   * @param fieldName Name of the field to be tested.
+   * @param newInstanceSupplier Supplier to create new instances of the field's type.
+   * @return Same object instance, providing a fluid api.
+   */
+  AssertConstraintSpec field(String fieldName, Supplier<Object> newInstanceSupplier);
 
-    /**
-     * Defines that no validation group will be applied to assertions following the
-     * invocation of this method.
-     *
-     * @return Same object instance, providing a fluid api.
-     */
-    AssertConstraintSpec withNoGroups();
+  /**
+   * Defines validation group(s) that will be applied to every assertion following the invocation of
+   * this method.
+   *
+   * @param groups Validation groups to be applied to following assertions.
+   * @return Same object instance, providing a fluid api.
+   */
+  AssertConstraintSpec withGroups(Class<?>... groups);
 
+  /**
+   * Defines that no validation group will be applied to assertions following the invocation of this
+   * method.
+   *
+   * @return Same object instance, providing a fluid api.
+   */
+  AssertConstraintSpec withNoGroups();
+
+  /**
+   * Asserts that the field won't accept null values.
+   *
+   * @param expectedMessage Expected constraint violation message.
+   * @param exactMatch Flag if an exact match should be performed. Otherwise, either a substring or
+   *     regex match will be performed.
+   * @return Same object instance, providing a fluid api.
+   */
+  AssertConstraintSpec shouldNotBeNull(String expectedMessage, boolean exactMatch);
+
+  /**
+   * Asserts that the field won't accept null values. This method will look up by an exact match of
+   * the default message 'must not be null'.
+   *
+   * @return Same object instance, providing a fluid api.
+   */
+  AssertConstraintSpec shouldNotBeNull();
 }
