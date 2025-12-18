@@ -79,4 +79,28 @@ public abstract class CommonConstraintsAssertion {
           .fieldHasNoneOfErrorsContaining(field.getName(), expectedMessage);
     }
   }
+
+  public static void canBeNull(
+      Object beanInstance,
+      Field field,
+      Validator validator,
+      Class<?>[] groups,
+      String expectedMessageNegativeScenario,
+      boolean exactMatch) {
+
+    ReflectionHelper.setFieldValue(beanInstance, field, null);
+    if (exactMatch) {
+      givenBeanInstance(beanInstance, validator, groups)
+          .fieldHasNoneOfErrors(field.getName(), expectedMessageNegativeScenario);
+    } else {
+      givenBeanInstance(beanInstance, validator, groups)
+          .fieldHasNoneOfErrorsContaining(field.getName(), expectedMessageNegativeScenario);
+    }
+  }
+
+  public static void shouldBeValidFor(
+      Object beanInstance, Field field, Object value, Validator validator, Class<?>[] groups) {
+    ReflectionHelper.setFieldValue(beanInstance, field, value);
+    givenBeanInstance(beanInstance, validator, groups).fieldHasNoError(field.getName());
+  }
 }

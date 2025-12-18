@@ -86,4 +86,32 @@ public interface AssertConstraintSpec {
    * @return Same object instance, providing a fluid api.
    */
   AssertConstraintSpec shouldNotBeNull();
+
+  /**
+   * Asserts that the field can accept null values.
+   *
+   * @param expectedMessageNegativeScenario Expected constraint violation message in case the
+   *     assertion fails.
+   * @param exactMatch Flag if an exact match should be performed. Otherwise, either a substring or
+   *     regex match will be performed.
+   * @return Same object instance, providing a fluid api.
+   */
+  AssertConstraintSpec canBeNull(String expectedMessageNegativeScenario, boolean exactMatch);
+
+  /**
+   * Asserts that the field can accept null values. This method will look up by an exact match of
+   * the default message 'must not be null' in case the assertion fails.
+   *
+   * @return Same object instance, providing a fluid api.
+   */
+  AssertConstraintSpec canBeNull();
+
+  /**
+   * Asserts that the given value is valid for the current field under test. After set the received
+   * value to the field, no constraint violations should be raised.
+   *
+   * @param value Value to be tested for validity.
+   * @return Same object instance, providing a fluid api.
+   */
+  AssertConstraintSpec shouldBeValidFor(Object value);
 }

@@ -110,4 +110,32 @@ public final class StandardConstraintSpec implements AssertConstraintSpec {
     this.shouldNotBeNull("must not be null", true);
     return this;
   }
+
+  /** {@inheritDoc} */
+  @Override
+  public AssertConstraintSpec canBeNull(
+      String expectedMessageNegativeScenario, boolean exactMatch) {
+    CommonConstraintsAssertion.canBeNull(
+        this.beanInstance,
+        this.field,
+        this.validator,
+        this.groups,
+        expectedMessageNegativeScenario,
+        exactMatch);
+    return this;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public AssertConstraintSpec canBeNull() {
+    return this.canBeNull("must not be null", true);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public AssertConstraintSpec shouldBeValidFor(Object value) {
+    CommonConstraintsAssertion.shouldBeValidFor(
+        this.beanInstance, this.field, value, this.validator, this.groups);
+    return this;
+  }
 }
