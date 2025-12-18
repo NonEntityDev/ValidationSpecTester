@@ -114,4 +114,40 @@ public interface AssertConstraintSpec {
    * @return Same object instance, providing a fluid api.
    */
   AssertConstraintSpec shouldBeValidFor(Object value);
+
+  /**
+   * Asserts that the field should be true (for boolean fields).
+   *
+   * @param expectedMessage Expected constraint violation message.
+   * @param exactMatch Flag if an exact match should be performed. Otherwise, either a substring or
+   *     regex match will be performed.
+   * @return Same object instance, providing a fluid api.
+   */
+  AssertConstraintSpec shouldBeTrue(String expectedMessage, boolean exactMatch);
+
+  /**
+   * Asserts that the field should be true (for boolean fields). This method will look up by an
+   * exact match of the default message 'must be true'.
+   *
+   * @return Same object instance, providing a fluid api.
+   */
+  AssertConstraintSpec shouldBeTrue();
+
+  /**
+   * Asserts that the field should be false (for boolean fields).
+   *
+   * @param expectedMessage Expected constraint violation message.
+   * @param exactMatch Flag if an exact match should be performed. Otherwise, either a substring or
+   *     regex match will be performed.
+   * @return Same object instance, providing a fluid api.
+   */
+  AssertConstraintSpec shouldBeFalse(String expectedMessage, boolean exactMatch);
+
+  /**
+   * Asserts that the field should be false (for boolean fields). This method will look up by an
+   * exact match of the default message 'must be false'.
+   *
+   * @return Same object instance, providing a fluid api.
+   */
+  AssertConstraintSpec shouldBeFalse();
 }

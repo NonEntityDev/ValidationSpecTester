@@ -23,58 +23,115 @@
  */
 package io.github.nonentitydev.validationspectester.fixtures;
 
+import jakarta.validation.constraints.AssertFalse;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 
 public class Contact {
 
-    @NotNull
-    @Length(min = 3, max = 140)
-    private String firstName;
+  @NotNull
+  @Length(min = 3, max = 140)
+  private String firstName;
 
-    @Length(min = 3, max = 140)
-    private String surname;
+  @Length(min = 3, max = 140)
+  private String surname;
 
-    @Email
-    @Length(min = 3, max = 140)
-    private String email;
+  @Email
+  @Length(min = 3, max = 140)
+  private String email;
 
-    @NotNull(groups = ProfessionalContact.class)
-    private String companyName;
+  @NotNull(groups = ProfessionalContact.class)
+  private String companyName;
 
-    public String getFirstName() {
-        return firstName;
-    }
+  @AssertTrue private Boolean agreeToTerms;
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+  private boolean active;
 
-    public String getSurname() {
-        return surname;
-    }
+  @AssertTrue(groups = AdministratorContact.class)
+  private boolean vetted;
 
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
+  @AssertFalse private boolean deleted;
 
-    public String getEmail() {
-        return email;
-    }
+  @AssertFalse(groups = CustomerContact.class)
+  private boolean blocked;
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+  public String getFirstName() {
+    return firstName;
+  }
 
-    public String getCompanyName() {
-        return companyName;
-    }
+  public void setFirstName(String firstName) {
+    this.firstName = firstName;
+  }
 
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
-    }
+  public String getSurname() {
+    return surname;
+  }
 
-    public interface ProfessionalContact {
-    }
+  public void setSurname(String surname) {
+    this.surname = surname;
+  }
+
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public String getCompanyName() {
+    return companyName;
+  }
+
+  public void setCompanyName(String companyName) {
+    this.companyName = companyName;
+  }
+
+  public Boolean getAgreeToTerms() {
+    return agreeToTerms;
+  }
+
+  public void setAgreeToTerms(Boolean agreeToTerms) {
+    this.agreeToTerms = agreeToTerms;
+  }
+
+  public boolean isActive() {
+    return active;
+  }
+
+  public void setActive(boolean active) {
+    this.active = active;
+  }
+
+  public boolean isVetted() {
+    return vetted;
+  }
+
+  public void setVetted(boolean vetted) {
+    this.vetted = vetted;
+  }
+
+  public boolean isDeleted() {
+    return deleted;
+  }
+
+  public void setDeleted(boolean deleted) {
+    this.deleted = deleted;
+  }
+
+  public boolean isBlocked() {
+    return blocked;
+  }
+
+  public void setBlocked(boolean blocked) {
+    this.blocked = blocked;
+  }
+
+  public interface ProfessionalContact {}
+
+  public interface AdministratorContact {}
+
+  public interface CustomerContact {}
 }

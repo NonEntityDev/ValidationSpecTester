@@ -23,6 +23,7 @@
  */
 package io.github.nonentitydev.validationspectester.spec;
 
+import io.github.nonentitydev.validationspectester.spec.asserts.BooleanConstraintsAssertion;
 import io.github.nonentitydev.validationspectester.spec.asserts.CommonConstraintsAssertion;
 import io.github.nonentitydev.validationspectester.spec.reflection.ReflectionHelper;
 import jakarta.validation.Validation;
@@ -137,5 +138,45 @@ public final class StandardConstraintSpec implements AssertConstraintSpec {
     CommonConstraintsAssertion.shouldBeValidFor(
         this.beanInstance, this.field, value, this.validator, this.groups);
     return this;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public AssertConstraintSpec shouldBeTrue(String expectedMessage, boolean exactMatch) {
+    BooleanConstraintsAssertion.shouldBe(
+        this.beanInstance,
+        this.field,
+        Boolean.TRUE,
+        expectedMessage,
+        exactMatch,
+        this.validator,
+        this.groups);
+    return null;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public AssertConstraintSpec shouldBeTrue() {
+    return this.shouldBeTrue("must be true", true);
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public AssertConstraintSpec shouldBeFalse(String expectedMessage, boolean exactMatch) {
+    BooleanConstraintsAssertion.shouldBe(
+        this.beanInstance,
+        this.field,
+        Boolean.FALSE,
+        expectedMessage,
+        exactMatch,
+        this.validator,
+        this.groups);
+    return this;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public AssertConstraintSpec shouldBeFalse() {
+    return this.shouldBeFalse("must be false", true);
   }
 }
